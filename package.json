@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "packageManager": "pnpm@9.1.1",
   "bin": {
-    "ts-unused-exports-remove": "dist/main.js"
+    "ts-unused-exports-remove": "dist/cli.js"
   },
   "files": [
     "dist"
@@ -17,6 +17,10 @@
     "test": "vitest",
     "up": "taze major -I",
     "postinstall": "npx simple-git-hooks"
+  },
+  "dependencies": {
+    "cac": "^6.7.14",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^2.18.1",

@@ -11,8 +11,8 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: 'src/main.ts',
-      fileName: 'main',
+      entry: 'src/cli.ts',
+      fileName: 'cli',
       formats: ['es'],
     },
     rollupOptions: {
