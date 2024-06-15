@@ -1,0 +1,41 @@
+{
+  "name": "ts-unused-exports-remove",
+  "type": "module",
+  "version": "0.0.0",
+  "packageManager": "pnpm@9.1.1",
+  "bin": {
+    "ts-unused-exports-remove": "dist/main.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "dev": "pnpm test",
+    "lint": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "up": "taze major -I",
+    "postinstall": "npx simple-git-hooks"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.18.1",
+    "@types/node": "^20.12.12",
+    "@unocss/eslint-plugin": "^0.61.0",
+    "eslint": "^9.3.0",
+    "eslint-plugin-format": "^0.1.1",
+    "lint-staged": "^15.2.2",
+    "pnpm": "^9.1.1",
+    "simple-git-hooks": "^2.11.1",
+    "taze": "^0.13.8",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11",
+    "vitest": "^1.6.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
+  }
+}
