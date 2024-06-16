@@ -40,9 +40,9 @@ export async function removeUnusedFiles(opts: RemoveUnusedFilesOptions) {
     .filter(file => !shouldIgnoreFile(file.getFilePath(), { exclude, include }))
     .filter(file => !referencedFiles.has(file))
 
-  unusedFiles.forEach((file, idx, total) => {
+  unusedFiles.forEach((file, idx, self) => {
     if (file !== entryFile && !shouldIgnoreFile(file.getFilePath(), { exclude, include })) {
-      log(`[${idx}/${total}] deleting unused file:`, file.getFilePath())
+      log(`[${idx + 1}/${self.length}] deleting unused file:`, file.getFilePath())
       file.delete()
     }
   })

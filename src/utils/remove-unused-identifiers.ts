@@ -11,8 +11,8 @@ export async function removeUnusedIdentifiers(opts: RemoveUnusedIdentifiersOptio
 
   const { project, exclude, include } = opts
   const sourceFiles = project.getSourceFiles().filter(file => !shouldIgnoreFile(file.getFilePath(), { exclude, include }))
-  sourceFiles.forEach((file, idx, total) => {
-    log(`[${idx}/${total}] removing unused identifiers:`, file.getFilePath())
+  sourceFiles.forEach((file, idx, self) => {
+    log(`[${idx + 1}/${self.length}] removing unused identifiers:`, file.getFilePath())
 
     let lastText = ''
     let currText = file.getFullText()

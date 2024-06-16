@@ -37,9 +37,7 @@ async function removeExportKeyword(sourceFile: SourceFile, nodes: ts.Node[]) {
 /**
  * Removes the export keyword from the specified file.
  */
-async function removeExportKeyWordInFile(filePath: string, analysis: Analysis, project: Project, idx: number, total: number) {
-  log(`[${idx}/${total}] removing export keyword from file:`, filePath)
-
+async function removeExportKeyWordInFile(filePath: string, analysis: Analysis, project: Project) {
   const exportInfos = analysis[filePath]
   const exportAllNames = exportInfos.map(node => node.exportName)
   const exportNames = exportAllNames.filter(name => name !== 'default')
@@ -94,7 +92,8 @@ export async function removeUnusedExportKeywords(opts: RemoveUnusedExportKeyword
   const removePromise = Object.keys(restAnalysis)
     .filter(file => !shouldIgnoreFile(file, { exclude, include }))
     .map((filePath, idx, self) => {
-      return removeExportKeyWordInFile(filePath, restAnalysis, project, idx + 1, self.length)
+      log(`[${idx + 1}/${self.length}] removing export keyword from file:`, filePath)
+      return removeExportKeyWordInFile(filePath, restAnalysis, project)
     })
   await Promise.all(removePromise)
 
