@@ -13,6 +13,6 @@ export async function removeUnused(opts: RemoveUnusedOptions) {
   const project = new Project({ tsConfigFilePath: tsconfig })
   const analysis = analyze(tsconfig)
   await removeUnusedExportKeywords({ ignore, analysis, project })
-  await removeUnusedIdentifiers({ entry, ignore, project })
+  await removeUnusedIdentifiers({ ignore, project })
   await removeUnusedFiles({ entry, ignore, project })
 }
