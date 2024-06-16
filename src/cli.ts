@@ -10,12 +10,22 @@ cli
     default: './tsconfig.json',
   })
   .option('--entry <entry>', 'Entry files')
-  .option('--ignore [...ignore]', 'Ignore files', { default: [] })
+  .option('--ignore <ignore>', 'Ignore files')
 
 cli.help()
 cli.version(version)
 
 const parsed = cli.parse()
+
+function parseIgnoreInput(input: unknown) {
+  return (typeof input === 'string' ? input : '').split(',').filter(Boolean)
+}
+
+const inputOpts = {
+  tsconfig: parsed.options.tsconfig,
+  entry: parsed.options.entry,
+  ignore: parseIgnoreInput(parsed.options.ignore),
+}
 
 const schema = zod.object({
   entry: zod.string({ message: 'entry is required' }),
@@ -23,19 +33,13 @@ const schema = zod.object({
   ignore: zod.array(zod.string(), { message: 'ignore must be an array' }),
 })
 
-const opts = {
-  tsconfig: parsed.options.tsconfig,
-  entry: parsed.options.entry,
-  ignore: parsed.options.ignore,
-}
-
-schema.safeParseAsync(opts).then((opts) => {
+schema.safeParseAsync(inputOpts).then((opts) => {
   if (opts.success) {
     removeUnused(opts.data)
   }
   else {
     opts.error.errors.forEach((error) => {
-      console.error(`[${error.code}] ${error.path}: ${error.message}`)
+      console.error(`[${error.code}] ${error.path}: ${error.message}.`)
     })
   }
 })
