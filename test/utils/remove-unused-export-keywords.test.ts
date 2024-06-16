@@ -201,6 +201,52 @@ describe('removeUnusedExportKeywords', () => {
     })
   })
 
+  describe('class', () => {
+    const project = new Project({
+      tsConfigFilePath: './tsconfig.json',
+    })
+    const createSourceFile = makeCreateSourceFile(project)
+    createSourceFile(
+      joinTestCasePath('index.ts'),
+      `import { Hello } from './hello';
+      const hello = new Hello();
+    `,
+    )
+    it('should not remove export for class if its used in some other file', async () => {
+      const FILE_NAME = joinTestCasePath('hello.ts')
+      const file = createSourceFile(
+        FILE_NAME,
+      `export class Hello { };`,
+      )
+      const analysis: Analysis = {}
+
+      await removeUnusedExportKeywords({ project, analysis })
+
+      const result = await formatCode(file.getFullText())
+      const expected = await formatCode(`export class Hello { };`)
+
+      expect(result).toBe(expected)
+    })
+
+    it('should remove export for interface if its not used in some other file', async () => {
+      const FILE_NAME = joinTestCasePath('world.ts')
+      const file = createSourceFile(
+        FILE_NAME,
+        `export class World { };`,
+      )
+      const analysis: Analysis = {
+        [FILE_NAME]: createExportNames(['World']),
+      }
+
+      await removeUnusedExportKeywords({ project, analysis })
+
+      const result = await formatCode(file.getFullText())
+      const expected = await formatCode(`class World { };`)
+
+      expect(result).toBe(expected)
+    })
+  })
+
   describe('options', () => {
     const project = new Project({
       tsConfigFilePath: './tsconfig.json',

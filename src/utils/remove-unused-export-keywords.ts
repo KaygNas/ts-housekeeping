@@ -1,5 +1,5 @@
 import type { Project, SourceFile } from 'ts-morph'
-import { EnumDeclaration, FunctionDeclaration, InterfaceDeclaration, Node, TypeAliasDeclaration, VariableDeclaration, ts } from 'ts-morph'
+import { ClassDeclaration, EnumDeclaration, FunctionDeclaration, InterfaceDeclaration, Node, TypeAliasDeclaration, VariableDeclaration, ts } from 'ts-morph'
 
 import type { Analysis } from 'ts-unused-exports/lib/types'
 import { assert, log, shouldIgnoreFile, warn } from './helpers'
@@ -70,6 +70,7 @@ async function removeExportKeyWordInFile(filePath: string, analysis: Analysis, p
           || EnumDeclaration.isEnumDeclaration(d)
           || InterfaceDeclaration.isInterfaceDeclaration(d)
           || TypeAliasDeclaration.isTypeAliasDeclaration(d)
+          || ClassDeclaration.isClassDeclaration(d)
       })
 
     const nodes = declarations.map(d => d.getExportKeyword()).filter(Node.isNode).map(n => n.compilerNode)
