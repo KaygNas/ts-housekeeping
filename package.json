@@ -20,6 +20,9 @@
   },
   "dependencies": {
     "cac": "^6.7.14",
+    "minimatch": "^9.0.4",
+    "ts-morph": "^22.0.0",
+    "ts-unused-exports": "^10.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -32,7 +35,7 @@
     "pnpm": "^9.1.1",
     "simple-git-hooks": "^2.11.1",
     "taze": "^0.13.8",
-    "typescript": "^5.4.5",
+    "typescript": "5.5.0-beta",
     "vite": "^5.2.11",
     "vitest": "^1.6.0"
   },

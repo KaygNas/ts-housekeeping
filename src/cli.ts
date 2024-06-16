@@ -1,7 +1,7 @@
 import cac from 'cac'
 import zod from 'zod'
 import { version } from '../package.json'
-import { removeUnusedExports } from './app'
+import { removeUnused } from './app'
 
 const cli = cac()
 
@@ -31,7 +31,7 @@ const opts = {
 
 schema.safeParseAsync(opts).then((opts) => {
   if (opts.success) {
-    removeUnusedExports(opts.data)
+    removeUnused(opts.data)
   }
   else {
     opts.error.errors.forEach((error) => {
