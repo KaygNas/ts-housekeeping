@@ -5,13 +5,13 @@ This project is create from the template [vitesse-lite](https://github.com/antfu
 ## Usage
 
 ```
-npx ts-unused-exports-remove --entry [entryFilePath]
+npx ts-housekeeping --entry [entryFilePath]
 ```
 
 ### Full Example
 
 ```
-npx ts-unused-exports-remove \
+npx ts-housekeeping \
 --tsconfig "./tsconfig.json" \
 --entry "src/main.ts" \
 --include "src" \
