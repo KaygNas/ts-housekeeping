@@ -2,7 +2,7 @@ import { Project } from 'ts-morph'
 import tsUnusedExports from 'ts-unused-exports'
 import type { BaseOptions } from './interfaces'
 import { removeUnusedExportKeywords } from './utils/remove-unused-export-keywords'
-import { removeUnusedIdentifiers } from './utils/remove-unused-Identifiers'
+import { removeUnusedIdentifiers } from './utils/remove-unused-identifiers'
 import { removeUnusedFiles } from './utils/remove-unused-files'
 
 const analyze = tsUnusedExports
