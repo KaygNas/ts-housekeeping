@@ -1,7 +1,7 @@
 {
   "name": "ts-housekeeping",
   "type": "module",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "packageManager": "pnpm@9.1.1",
   "description": "A simple cli to remove unused variables, interface, class in `.ts` files.",
   "author": {
@@ -37,7 +37,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "up": "taze major -I",
-    "postinstall": "npx simple-git-hooks",
+    "setup": "simple-git-hooks",
     "prepublish": "pnpm build"
   },
   "dependencies": {
