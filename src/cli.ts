@@ -1,8 +1,8 @@
 import cac from 'cac'
 import zod from 'zod'
 import { version } from '../package.json'
-import { removeUnused } from './app'
 import { log } from './utils/helpers'
+import { removeUnused } from './app'
 
 const cli = cac()
 
@@ -23,7 +23,10 @@ function parseArrayInput(input: unknown) {
   return (typeof input === 'string' ? input : '').split(',').filter(Boolean)
 }
 
+delete parsed.options['--']
+
 const inputOpts = {
+  ...parsed.options,
   tsconfig: parsed.options.tsconfig,
   entry: parsed.options.entry,
   include: parseArrayInput(parsed.options.include),
@@ -35,7 +38,7 @@ const schema = zod.object({
   tsconfig: zod.string({ message: 'tsconfig is required' }),
   include: zod.array(zod.string(), { message: 'include must be an array' }),
   exclude: zod.array(zod.string(), { message: 'exclude must be an array' }),
-})
+}).strict()
 
 schema.safeParseAsync(inputOpts).then(async (opts) => {
   if (opts.success) {
