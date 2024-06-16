@@ -15,4 +15,5 @@ export async function removeUnused(opts: RemoveUnusedOptions) {
   await removeUnusedExportKeywords({ ignore, analysis, project })
   await removeUnusedIdentifiers({ ignore, project })
   await removeUnusedFiles({ entry, ignore, project })
+  await project.save()
 }

@@ -19,6 +19,4 @@ export async function removeUnusedIdentifiers(opts: RemoveUnusedIdentifiersOptio
       currText = file.fixUnusedIdentifiers().getFullText()
     }
   })
-
-  await project.save()
 }
