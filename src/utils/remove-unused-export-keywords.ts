@@ -1,5 +1,5 @@
 import type { Project, SourceFile } from 'ts-morph'
-import { Node, ts } from 'ts-morph'
+import { EnumDeclaration, FunctionDeclaration, InterfaceDeclaration, Node, TypeAliasDeclaration, VariableDeclaration, ts } from 'ts-morph'
 
 import type { Analysis } from 'ts-unused-exports/lib/types'
 import { assert, log, shouldIgnoreFile } from './helpers'
@@ -13,10 +13,12 @@ async function removeExportKeyword(sourceFile: SourceFile, nodes: ts.Node[]) {
     return
   }
 
-  const transformer = (context: ts.TransformationContext) => {
-    return (node: ts.SourceFile) => {
-      const visitor = (node: ts.Node) => {
-        if (nodes.includes(node) && node.kind === ts.SyntaxKind.ExportKeyword) {
+  log('replacing source file:', sourceFile.getFilePath())
+
+  const createTransformer: ts.TransformerFactory<ts.SourceFile> = (context: ts.TransformationContext) => {
+    const transformer = (node: ts.SourceFile) => {
+      const visitor: ts.Visitor<ts.Node> = (node: ts.Node) => {
+        if (nodes.includes(node)) {
           return undefined
         }
 
@@ -25,11 +27,10 @@ async function removeExportKeyword(sourceFile: SourceFile, nodes: ts.Node[]) {
 
       return ts.visitNode(node, visitor)
     }
+    return transformer as ts.Transformer<ts.SourceFile>
   }
 
-  log('replacing source file:', sourceFile.getFilePath())
-
-  const transformedSourceFile = ts.transform(sourceFile.compilerNode, [transformer]).transformed[0]
+  const transformedSourceFile = ts.transform(sourceFile.compilerNode, [createTransformer]).transformed[0]
   const printer = ts.createPrinter()
   const result = printer.printFile(transformedSourceFile)
   sourceFile.replaceWithText(result)
@@ -42,30 +43,39 @@ async function removeExportKeyWordInFile(filePath: string, analysis: Analysis, p
   log(`[${idx}/${total}] removing export keyword from file:`, filePath)
 
   const exportInfos = analysis[filePath]
-  const exportNames = new Set(exportInfos.map(node => node.exportName))
+  const exportAllNames = exportInfos.map(node => node.exportName)
+  const exportNames = exportAllNames.filter(name => name !== 'default')
   const sourceFile = project.getSourceFile(filePath)
+
+  log('find unused exports:', exportAllNames)
 
   assert(!!sourceFile, `source file not found: ${filePath}`)
 
-  const declarations = Array.from(sourceFile.getExportedDeclarations().entries())
+  if (exportNames.length !== exportAllNames.length) {
+    sourceFile.removeDefaultExport()
+  }
 
-  log('find declarations:', declarations.length)
+  const exportSymbols = exportNames
+    .map(name => sourceFile.getLocal(name))
+    .filter(s => !!s)
 
-  const unusedExports = declarations
-    .filter(([name]) => {
-      return exportNames.has(name)
-    })
-    .map(([name, declarations]) => {
-      const declaration = declarations[0]
-      const node = declaration.getFirstDescendantByKind(ts.SyntaxKind.ExportKeyword)?.compilerNode
-      return { name, node }
-    })
-    .filter(({ node }) => node !== undefined)
+  assert(exportSymbols.length === exportNames.length, `mismatched export symbols and export names`)
 
-  log('find unused exports:', unusedExports.map(({ name }) => name))
+  const exportKeywords = exportSymbols.map((s) => {
+    const declarations = s.getDeclarations()
+      .filter((d) => {
+        return FunctionDeclaration.isFunctionDeclaration(d)
+          || VariableDeclaration.isVariableDeclaration(d)
+          || EnumDeclaration.isEnumDeclaration(d)
+          || InterfaceDeclaration.isInterfaceDeclaration(d)
+          || TypeAliasDeclaration.isTypeAliasDeclaration(d)
+      })
 
-  const unusedExportsNodes = unusedExports.map(({ node }) => node).filter(node => Node.isNode(node))
-  await removeExportKeyword(sourceFile, unusedExportsNodes)
+    const nodes = declarations.map(d => d.getExportKeyword()).filter(Node.isNode).map(n => n.compilerNode)
+    return nodes
+  }).flat()
+
+  await removeExportKeyword(sourceFile, exportKeywords)
 }
 
 interface RemoveUnusedExportKeywordsOptions extends Pick<BaseOptions, 'ignore'> {
@@ -77,7 +87,7 @@ export async function removeUnusedExportKeywords(opts: RemoveUnusedExportKeyword
   const { analysis, project, ignore } = opts
   const { unusedFiles, ...restAnalysis } = analysis
   const removePromise = Object.keys(restAnalysis)
-    .filter(file => shouldIgnoreFile(file, ignore))
+    .filter(file => !shouldIgnoreFile(file, ignore))
     .map((filePath, idx, self) => {
       return removeExportKeyWordInFile(filePath, restAnalysis, project, idx + 1, self.length)
     })
