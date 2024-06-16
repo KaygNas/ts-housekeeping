@@ -1,3 +1,5 @@
+import { join } from 'node:path'
+import { cwd } from 'node:process'
 import cac from 'cac'
 import zod from 'zod'
 import { version } from '../package.json'
@@ -23,14 +25,18 @@ function parseArrayInput(input: unknown) {
   return (typeof input === 'string' ? input : '').split(',').filter(Boolean)
 }
 
+function parsePath(input: string) {
+  return join(cwd(), input)
+}
+
 delete parsed.options['--']
 
 const inputOpts = {
   ...parsed.options,
   tsconfig: parsed.options.tsconfig,
-  entry: parsed.options.entry,
-  include: parseArrayInput(parsed.options.include),
-  exclude: parseArrayInput(parsed.options.exclude),
+  entry: parsePath(parsed.options.entry),
+  include: parseArrayInput(parsed.options.include).map(parsePath),
+  exclude: parseArrayInput(parsed.options.exclude).map(parsePath),
 }
 
 const schema = zod.object({
