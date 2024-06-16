@@ -48,9 +48,10 @@ const schema = zod.object({
 
 schema.safeParseAsync(inputOpts).then(async (opts) => {
   if (opts.success) {
-    log('[start] removing used... inputOpts:', opts.data)
+    log('[start] removing unused...')
+    log('inputOpts:', opts.data)
     await removeUnused(opts.data)
-    log('[finished] removing used.')
+    log('[finished] all used are removed.')
   }
   else {
     opts.error.errors.forEach((error) => {
