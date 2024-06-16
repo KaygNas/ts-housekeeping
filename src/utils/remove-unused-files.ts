@@ -26,6 +26,8 @@ interface RemoveUnusedFilesOptions extends Omit<BaseOptions, 'tsconfig'> {
 }
 
 export async function removeUnusedFiles(opts: RemoveUnusedFilesOptions) {
+  log('[start] removing unused files...')
+
   const { project, exclude, include, entry } = opts
 
   const entryFile = project.getSourceFile(entry)
@@ -38,10 +40,12 @@ export async function removeUnusedFiles(opts: RemoveUnusedFilesOptions) {
     .filter(file => !shouldIgnoreFile(file.getFilePath(), { exclude, include }))
     .filter(file => !referencedFiles.has(file))
 
-  unusedFiles.forEach((file) => {
+  unusedFiles.forEach((file, idx, total) => {
     if (file !== entryFile && !shouldIgnoreFile(file.getFilePath(), { exclude, include })) {
-      log('deleting unused file:', file.getFilePath())
+      log(`[${idx}/${total}] deleting unused file:`, file.getFilePath())
       file.delete()
     }
   })
+
+  log('[finished] unused files removed.')
 }

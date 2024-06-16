@@ -4,6 +4,7 @@ import type { BaseOptions } from './interfaces'
 import { removeUnusedExportKeywords } from './utils/remove-unused-export-keywords'
 import { removeUnusedIdentifiers } from './utils/remove-unused-identifiers'
 import { removeUnusedFiles } from './utils/remove-unused-files'
+import { saveProject } from './utils/save-project'
 
 const analyze = (tsUnusedExports as any).default as typeof tsUnusedExports
 
@@ -15,5 +16,5 @@ export async function removeUnused(opts: RemoveUnusedOptions) {
   await removeUnusedExportKeywords({ exclude, analysis, project })
   await removeUnusedIdentifiers({ exclude, project })
   await removeUnusedFiles({ entry, exclude, project })
-  await project.save()
+  await saveProject(project)
 }

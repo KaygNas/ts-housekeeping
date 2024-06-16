@@ -87,6 +87,8 @@ interface RemoveUnusedExportKeywordsOptions extends Pick<BaseOptions, 'exclude' 
 }
 
 export async function removeUnusedExportKeywords(opts: RemoveUnusedExportKeywordsOptions) {
+  log('[start] removing unused export keywords...')
+
   const { analysis, project, exclude, include } = opts
   const { unusedFiles, ...restAnalysis } = analysis
   const removePromise = Object.keys(restAnalysis)
@@ -95,4 +97,6 @@ export async function removeUnusedExportKeywords(opts: RemoveUnusedExportKeyword
       return removeExportKeyWordInFile(filePath, restAnalysis, project, idx + 1, self.length)
     })
   await Promise.all(removePromise)
+
+  log('[finished] unused export keywords removed.')
 }

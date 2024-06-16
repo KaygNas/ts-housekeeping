@@ -2,6 +2,7 @@ import cac from 'cac'
 import zod from 'zod'
 import { version } from '../package.json'
 import { removeUnused } from './app'
+import { log } from './utils/helpers'
 
 const cli = cac()
 
@@ -36,9 +37,11 @@ const schema = zod.object({
   exclude: zod.array(zod.string(), { message: 'exclude must be an array' }),
 })
 
-schema.safeParseAsync(inputOpts).then((opts) => {
+schema.safeParseAsync(inputOpts).then(async (opts) => {
   if (opts.success) {
-    removeUnused(opts.data)
+    log('[start] removing used... inputOpts:', opts.data)
+    await removeUnused(opts.data)
+    log('[finished] removing used.')
   }
   else {
     opts.error.errors.forEach((error) => {

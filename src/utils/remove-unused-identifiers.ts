@@ -1,5 +1,5 @@
 import type { Project } from 'ts-morph'
-import { shouldIgnoreFile } from './helpers'
+import { log, shouldIgnoreFile } from './helpers'
 import type { BaseOptions } from '~/interfaces'
 
 interface RemoveUnusedIdentifiersOptions extends Pick<BaseOptions, 'exclude' | 'include'> {
@@ -7,10 +7,12 @@ interface RemoveUnusedIdentifiersOptions extends Pick<BaseOptions, 'exclude' | '
 }
 
 export async function removeUnusedIdentifiers(opts: RemoveUnusedIdentifiersOptions) {
+  log('[start] removing unused identifiers...')
+
   const { project, exclude, include } = opts
   const sourceFiles = project.getSourceFiles().filter(file => !shouldIgnoreFile(file.getFilePath(), { exclude, include }))
-  sourceFiles.forEach((file) => {
-    file.fixUnusedIdentifiers()
+  sourceFiles.forEach((file, idx, total) => {
+    log(`[${idx}/${total}] removing unused identifiers:`, file.getFilePath())
 
     let lastText = ''
     let currText = file.getFullText()
@@ -19,4 +21,6 @@ export async function removeUnusedIdentifiers(opts: RemoveUnusedIdentifiersOptio
       currText = file.fixUnusedIdentifiers().getFullText()
     }
   })
+
+  log('[finished] unused identifiers removed.')
 }
