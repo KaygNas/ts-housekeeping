@@ -25,7 +25,13 @@ export default defineConfig({
     minify: false,
   },
   plugins: [
-    createExternal({ nodeBuiltins: true }),
+    createExternal({ nodeBuiltins: true, externalizeDeps: [
+      'cac',
+      'minimatch',
+      'ts-morph',
+      'ts-unused-exports',
+      'zod',
+    ] }),
   ],
   // https://github.com/vitest-dev/vitest
   test: {},
