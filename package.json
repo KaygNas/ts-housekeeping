@@ -1,7 +1,7 @@
 {
   "name": "ts-unused-exports-remove",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.1.1",
   "packageManager": "pnpm@9.1.1",
   "description": "A simple cli to remove unused variables, interface, class in `.ts` files.",
   "author": {
@@ -13,6 +13,17 @@
     "type": "git",
     "url": "https://github.com/KaygNas/ts-unused-exports-remove.git"
   },
+  "keywords": [
+    "dead code",
+    "duplicate",
+    "export",
+    "files",
+    "types",
+    "typescript",
+    "unreferenced",
+    "unresolved",
+    "unused"
+  ],
   "bin": {
     "ts-unused-exports-remove": "dist/cli.js"
   },
@@ -26,7 +37,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "up": "taze major -I",
-    "postinstall": "npx simple-git-hooks"
+    "postinstall": "npx simple-git-hooks",
+    "prepublish": "pnpm build"
   },
   "dependencies": {
     "cac": "^6.7.14",
