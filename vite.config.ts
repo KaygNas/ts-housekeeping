@@ -2,6 +2,7 @@
 
 import path from 'node:path'
 import { defineConfig } from 'vite'
+import createExternal from 'vite-plugin-external'
 
 export default defineConfig({
   resolve: {
@@ -23,7 +24,9 @@ export default defineConfig({
     target: 'es2016',
     minify: false,
   },
-  plugins: [],
+  plugins: [
+    createExternal({ nodeBuiltins: true }),
+  ],
   // https://github.com/vitest-dev/vitest
   test: {},
 })
