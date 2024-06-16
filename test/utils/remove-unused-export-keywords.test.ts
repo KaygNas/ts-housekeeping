@@ -200,4 +200,51 @@ describe('removeUnusedExportKeywords', () => {
       expect(result).toBe(expected)
     })
   })
+
+  describe('options', () => {
+    const project = new Project({
+      tsConfigFilePath: './tsconfig.json',
+    })
+    const createSourceFile = makeCreateSourceFile(project)
+    createSourceFile(
+      joinTestCasePath('index.ts'),
+      `import { hello } from './hello';
+      console.log(hello);
+    `,
+    )
+
+    it('should ignore matched files', async () => {
+      const FILE_NAME = joinTestCasePath('world.ts')
+      const file = createSourceFile(
+        FILE_NAME,
+        `export const world = 'world';`,
+      )
+      const analysis: Analysis = {
+        [FILE_NAME]: createExportNames(['world']),
+      }
+
+      await removeUnusedExportKeywords({ project, analysis, ignore: ['**/world.ts'] })
+
+      const result = await formatCode(file.getFullText())
+      const expected = await formatCode(`export const world = 'world';`)
+      expect(result).toBe(expected)
+    })
+
+    it('should not ignore unmatched files', async () => {
+      const FILE_NAME = joinTestCasePath('world-unmatched.ts')
+      const file = createSourceFile(
+        FILE_NAME,
+        `export const world = 'world';`,
+      )
+      const analysis: Analysis = {
+        [FILE_NAME]: createExportNames(['world']),
+      }
+
+      await removeUnusedExportKeywords({ project, analysis, ignore: ['**/world.ts'] })
+
+      const result = await formatCode(file.getFullText())
+      const expected = await formatCode(`const world = 'world';`)
+      expect(result).toBe(expected)
+    })
+  })
 })
