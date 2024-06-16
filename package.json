@@ -3,6 +3,16 @@
   "type": "module",
   "version": "0.0.0",
   "packageManager": "pnpm@9.1.1",
+  "description": "A simple cli to remove unused variables, interface, class in `.ts` files.",
+  "author": {
+    "name": "Chengjie Huang",
+    "email": "597857074@qq.com"
+  },
+  "homepage": "https://github.com/KaygNas/ts-unused-exports-remove",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KaygNas/ts-unused-exports-remove.git"
+  },
   "bin": {
     "ts-unused-exports-remove": "dist/cli.js"
   },
