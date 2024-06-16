@@ -9,11 +9,11 @@ const analyze = (tsUnusedExports as any).default as typeof tsUnusedExports
 
 interface RemoveUnusedOptions extends BaseOptions { }
 export async function removeUnused(opts: RemoveUnusedOptions) {
-  const { entry, ignore, tsconfig } = opts
+  const { entry, exclude, tsconfig } = opts
   const project = new Project({ tsConfigFilePath: tsconfig })
   const analysis = analyze(tsconfig)
-  await removeUnusedExportKeywords({ ignore, analysis, project })
-  await removeUnusedIdentifiers({ ignore, project })
-  await removeUnusedFiles({ entry, ignore, project })
+  await removeUnusedExportKeywords({ exclude, analysis, project })
+  await removeUnusedIdentifiers({ exclude, project })
+  await removeUnusedFiles({ entry, exclude, project })
   await project.save()
 }

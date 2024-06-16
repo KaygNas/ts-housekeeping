@@ -223,7 +223,7 @@ describe('removeUnusedExportKeywords', () => {
         [FILE_NAME]: createExportNames(['world']),
       }
 
-      await removeUnusedExportKeywords({ project, analysis, ignore: ['**/world.ts'] })
+      await removeUnusedExportKeywords({ project, analysis, exclude: ['**/world.ts'] })
 
       const result = await formatCode(file.getFullText())
       const expected = await formatCode(`export const world = 'world';`)
@@ -240,7 +240,7 @@ describe('removeUnusedExportKeywords', () => {
         [FILE_NAME]: createExportNames(['world']),
       }
 
-      await removeUnusedExportKeywords({ project, analysis, ignore: ['**/world.ts'] })
+      await removeUnusedExportKeywords({ project, analysis, exclude: ['**/world.ts'] })
 
       const result = await formatCode(file.getFullText())
       const expected = await formatCode(`const world = 'world';`)

@@ -81,16 +81,16 @@ async function removeExportKeyWordInFile(filePath: string, analysis: Analysis, p
   await removeExportKeyword(sourceFile, exportKeywords)
 }
 
-interface RemoveUnusedExportKeywordsOptions extends Pick<BaseOptions, 'ignore'> {
+interface RemoveUnusedExportKeywordsOptions extends Pick<BaseOptions, 'exclude' | 'include'> {
   project: Project
   analysis: Analysis
 }
 
 export async function removeUnusedExportKeywords(opts: RemoveUnusedExportKeywordsOptions) {
-  const { analysis, project, ignore } = opts
+  const { analysis, project, exclude, include } = opts
   const { unusedFiles, ...restAnalysis } = analysis
   const removePromise = Object.keys(restAnalysis)
-    .filter(file => !shouldIgnoreFile(file, ignore))
+    .filter(file => !shouldIgnoreFile(file, { exclude, include }))
     .map((filePath, idx, self) => {
       return removeExportKeyWordInFile(filePath, restAnalysis, project, idx + 1, self.length)
     })

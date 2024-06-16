@@ -10,27 +10,30 @@ cli
     default: './tsconfig.json',
   })
   .option('--entry <entry>', 'Entry files')
-  .option('--ignore <ignore>', 'Ignore files')
+  .option('--exclude <exclude>', 'Exclude files')
+  .option('--include <include>', 'Include files')
 
 cli.help()
 cli.version(version)
 
 const parsed = cli.parse()
 
-function parseIgnoreInput(input: unknown) {
+function parseArrayInput(input: unknown) {
   return (typeof input === 'string' ? input : '').split(',').filter(Boolean)
 }
 
 const inputOpts = {
   tsconfig: parsed.options.tsconfig,
   entry: parsed.options.entry,
-  ignore: parseIgnoreInput(parsed.options.ignore),
+  include: parseArrayInput(parsed.options.include),
+  exclude: parseArrayInput(parsed.options.exclude),
 }
 
 const schema = zod.object({
   entry: zod.string({ message: 'entry is required' }),
   tsconfig: zod.string({ message: 'tsconfig is required' }),
-  ignore: zod.array(zod.string(), { message: 'ignore must be an array' }),
+  include: zod.array(zod.string(), { message: 'include must be an array' }),
+  exclude: zod.array(zod.string(), { message: 'exclude must be an array' }),
 })
 
 schema.safeParseAsync(inputOpts).then((opts) => {

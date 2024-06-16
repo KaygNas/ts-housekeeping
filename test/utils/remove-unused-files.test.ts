@@ -36,7 +36,7 @@ describe('removeUnusedFiles', () => {
     createSourceFile(FILA_A_NAME, 'export const a = 1;')
     createSourceFile(FILE_B_NAME, 'export const b = 2;')
 
-    await removeUnusedFiles({ project, entry: ENTRY_FILE_NAME, ignore: ['**/unused-file-a.ts'] })
+    await removeUnusedFiles({ project, entry: ENTRY_FILE_NAME, exclude: ['**/unused-file-a.ts'] })
 
     const entryFile = project.getSourceFile(ENTRY_FILE_NAME)
     const fileA = project.getSourceFile(FILA_A_NAME)
@@ -45,5 +45,24 @@ describe('removeUnusedFiles', () => {
     expect(entryFile).toBeDefined()
     expect(fileA).toBeDefined()
     expect(fileB).toBeUndefined()
+  })
+
+  it('should only remove included files', async () => {
+    const ENTRY_FILE_NAME = joinTestCasePath('unused-file-index.ts')
+    const FILA_A_NAME = joinTestCasePath('included/unused-file-a.ts')
+    const FILE_B_NAME = joinTestCasePath('unused-file-b.ts')
+    createSourceFile(ENTRY_FILE_NAME, 'const a = 1; console.log(a);')
+    createSourceFile(FILA_A_NAME, 'export const a = 1;')
+    createSourceFile(FILE_B_NAME, 'export const b = 2;')
+
+    await removeUnusedFiles({ project, entry: ENTRY_FILE_NAME, include: ['**/included/unused-file-a.ts'] })
+
+    const entryFile = project.getSourceFile(ENTRY_FILE_NAME)
+    const fileA = project.getSourceFile(FILA_A_NAME)
+    const fileB = project.getSourceFile(FILE_B_NAME)
+
+    expect(entryFile).toBeDefined()
+    expect(fileA).toBeUndefined()
+    expect(fileB).toBeDefined()
   })
 })

@@ -2,7 +2,7 @@ import type { Project, SourceFile } from 'ts-morph'
 import { assert, log, shouldIgnoreFile } from './helpers'
 import type { BaseOptions } from '~/interfaces'
 
-function findAllReferencedFiles(entry: SourceFile, ignore?: string[]) {
+function findAllReferencedFiles(entry: SourceFile, opts: { include?: string[], exclude?: string[] }) {
   const referencedFiles = new Set()
   const queue = [entry]
   while (queue.length > 0) {
@@ -10,7 +10,7 @@ function findAllReferencedFiles(entry: SourceFile, ignore?: string[]) {
 
     file.getReferencedSourceFiles().forEach((file) => {
       if (!referencedFiles.has(file)) {
-        if (shouldIgnoreFile(file.getFilePath(), ignore)) {
+        if (shouldIgnoreFile(file.getFilePath(), opts)) {
           return
         }
         referencedFiles.add(file)
@@ -26,20 +26,20 @@ interface RemoveUnusedFilesOptions extends Omit<BaseOptions, 'tsconfig'> {
 }
 
 export async function removeUnusedFiles(opts: RemoveUnusedFilesOptions) {
-  const { project, ignore, entry } = opts
+  const { project, exclude, include, entry } = opts
 
   const entryFile = project.getSourceFile(entry)
 
   assert(!!entryFile, `entry file not found: ${entry}`)
 
-  const referencedFiles = findAllReferencedFiles(entryFile, ignore)
+  const referencedFiles = findAllReferencedFiles(entryFile, { exclude, include })
 
   const unusedFiles = project.getSourceFiles()
-    .filter(file => !shouldIgnoreFile(file.getFilePath(), ignore))
+    .filter(file => !shouldIgnoreFile(file.getFilePath(), { exclude, include }))
     .filter(file => !referencedFiles.has(file))
 
   unusedFiles.forEach((file) => {
-    if (file !== entryFile && !shouldIgnoreFile(file.getFilePath(), ignore)) {
+    if (file !== entryFile && !shouldIgnoreFile(file.getFilePath(), { exclude, include })) {
       log('deleting unused file:', file.getFilePath())
       file.delete()
     }
