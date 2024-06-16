@@ -5,7 +5,7 @@ import { removeUnusedExportKeywords } from './utils/remove-unused-export-keyword
 import { removeUnusedIdentifiers } from './utils/remove-unused-identifiers'
 import { removeUnusedFiles } from './utils/remove-unused-files'
 
-const analyze = tsUnusedExports
+const analyze = (tsUnusedExports as any).default as typeof tsUnusedExports
 
 interface RemoveUnusedOptions extends BaseOptions { }
 export async function removeUnused(opts: RemoveUnusedOptions) {

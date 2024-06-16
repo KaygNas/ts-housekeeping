@@ -2,7 +2,7 @@ import type { Project, SourceFile } from 'ts-morph'
 import { EnumDeclaration, FunctionDeclaration, InterfaceDeclaration, Node, TypeAliasDeclaration, VariableDeclaration, ts } from 'ts-morph'
 
 import type { Analysis } from 'ts-unused-exports/lib/types'
-import { assert, log, shouldIgnoreFile } from './helpers'
+import { assert, log, shouldIgnoreFile, warn } from './helpers'
 import type { BaseOptions } from '~/interfaces'
 
 /**
@@ -13,18 +13,14 @@ async function removeExportKeyword(sourceFile: SourceFile, nodes: ts.Node[]) {
     return
   }
 
-  log('replacing source file:', sourceFile.getFilePath())
-
   const createTransformer: ts.TransformerFactory<ts.SourceFile> = (context: ts.TransformationContext) => {
-    const transformer = (node: ts.SourceFile) => {
-      const visitor: ts.Visitor<ts.Node> = (node: ts.Node) => {
-        if (nodes.includes(node)) {
-          return undefined
-        }
-
-        return ts.visitEachChild(node, visitor, context)
+    const visitor: ts.Visitor<ts.Node> = (node: ts.Node) => {
+      if (nodes.includes(node)) {
+        return undefined
       }
-
+      return ts.visitEachChild(node, visitor, context)
+    }
+    const transformer = (node: ts.SourceFile) => {
       return ts.visitNode(node, visitor)
     }
     return transformer as ts.Transformer<ts.SourceFile>
@@ -32,6 +28,8 @@ async function removeExportKeyword(sourceFile: SourceFile, nodes: ts.Node[]) {
 
   const transformedSourceFile = ts.transform(sourceFile.compilerNode, [createTransformer]).transformed[0]
   const printer = ts.createPrinter()
+
+  log('replacing source file:', sourceFile.getFilePath())
   const result = printer.printFile(transformedSourceFile)
   sourceFile.replaceWithText(result)
 }
@@ -45,13 +43,14 @@ async function removeExportKeyWordInFile(filePath: string, analysis: Analysis, p
   const exportInfos = analysis[filePath]
   const exportAllNames = exportInfos.map(node => node.exportName)
   const exportNames = exportAllNames.filter(name => name !== 'default')
+  const hasDefaultExport = exportNames.length !== exportAllNames.length
   const sourceFile = project.getSourceFile(filePath)
 
   log('find unused exports:', exportAllNames)
 
   assert(!!sourceFile, `source file not found: ${filePath}`)
 
-  if (exportNames.length !== exportAllNames.length) {
+  if (hasDefaultExport) {
     sourceFile.removeDefaultExport()
   }
 
@@ -59,7 +58,11 @@ async function removeExportKeyWordInFile(filePath: string, analysis: Analysis, p
     .map(name => sourceFile.getLocal(name))
     .filter(s => !!s)
 
-  assert(exportSymbols.length === exportNames.length, `mismatched export symbols and export names`)
+  if (exportSymbols.length !== exportNames.length) {
+    const names = new Set(exportSymbols.map(s => s.getName()))
+    const missingExports = exportNames.filter(name => !names.has(name))
+    warn(`mismatched export symbols and export names, missing: `, missingExports)
+  }
 
   const exportKeywords = exportSymbols.map((s) => {
     const declarations = s.getDeclarations()
